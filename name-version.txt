@@ -1,0 +1,1 @@
+exqudens-cpp-xerces: 1.0.0
