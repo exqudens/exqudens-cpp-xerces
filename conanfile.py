@@ -38,6 +38,7 @@ class ConanConfiguration(ConanFile):
         try:
             self.tool_requires("gtest/1.11.0")
             self.tool_requires("xerces-c/3.2.4")
+            self.tool_requires("jsoncpp/1.9.5")
         except Exception as e:
             error(format_exc())
             raise e
@@ -46,6 +47,7 @@ class ConanConfiguration(ConanFile):
         try:
             self.options["gtest"].shared = self.options.shared
             self.options["xerces-c"].shared = self.options.shared
+            self.options["jsoncpp"].shared = self.options.shared
         except Exception as e:
             error(format_exc())
             raise e

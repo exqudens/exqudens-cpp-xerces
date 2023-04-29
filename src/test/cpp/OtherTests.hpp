@@ -1,13 +1,17 @@
 #include <string>
 #include <filesystem>
+#include <sstream>
 #include <iostream>
 #include <format>
 
 #include <gtest/gtest.h>
+
 #include <xercesc/dom/DOM.hpp>
 #include <xercesc/framework/LocalFileFormatTarget.hpp>
 #include <xercesc/util/XMLString.hpp>
 #include <xercesc/util/PlatformUtils.hpp>
+
+#include <json/json.h>
 
 #include "TestUtils.hpp"
 
@@ -85,6 +89,35 @@ TEST_F(OtherTests, test1) {
     parser->release();
 
     xercesc::XMLPlatformUtils::Terminate();
+
+    std::cout << std::format("---") << std::endl;
+
+    Json::Value root;
+
+    root["root"] = {};
+    root["root"]["id"] = 1;
+    root["root"]["name"] = "Abc";
+
+    Json::StreamWriterBuilder wbuilder;
+    wbuilder["indentation"] = "\t";
+    std::string content = Json::writeString(wbuilder, root);
+
+    std::cout << "AAA: '" << content << "'" << std::endl;
+
+    std::istringstream inputStream(content);
+    Json::CharReaderBuilder rbuilder;
+    rbuilder["collectComments"] = false;
+    std::string errs;
+    root = {};
+    content = "";
+    bool ok = Json::parseFromStream(rbuilder, inputStream, &root, &errs);
+    if (ok) {
+      content = Json::writeString(wbuilder, root);
+    }
+
+    std::cout << "BBB: '" << content << "'" << std::endl;
+
+    std::cout << std::format("---") << std::endl;
   } catch (const std::exception& e) {
     FAIL() << TestUtils::toString(e);
   }

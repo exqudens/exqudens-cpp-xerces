@@ -209,6 +209,9 @@ foreach(
     elseif("xerces-c" STREQUAL "${conanPackageName}")
         list(APPEND NOT_FOUND_PACKAGE_NAMES "${cmakePackageName}")
         find_package("${cmakePackageName}" "${cmakePackageVersion}" EXACT QUIET)
+    elseif("jsoncpp" STREQUAL "${conanPackageName}")
+        list(APPEND NOT_FOUND_PACKAGE_NAMES "${cmakePackageName}")
+        find_package("${cmakePackageName}" "${cmakePackageVersion}" EXACT QUIET)
     else()
         list(APPEND NOT_FOUND_PACKAGE_NAMES "${cmakePackageName}")
         find_package("${cmakePackageName}" "${cmakePackageVersion}" EXACT QUIET CONFIG)
@@ -241,6 +244,7 @@ target_link_libraries("test-lib" PUBLIC
     "GTest::gmock_main"
     "GTest::gtest_main"
     "XercesC::XercesC"
+    "jsoncpp::jsoncpp"
 )
 set_target_properties("test-lib" PROPERTIES
     CXX_STANDARD 23
