@@ -1,3 +1,5 @@
+#pragma once
+
 #include <string>
 #include <filesystem>
 #include <sstream>
@@ -8,6 +10,7 @@
 
 #include <xercesc/dom/DOM.hpp>
 #include <xercesc/framework/LocalFileFormatTarget.hpp>
+#include <xercesc/framework/MemBufFormatTarget.hpp>
 #include <xercesc/util/XMLString.hpp>
 #include <xercesc/util/PlatformUtils.hpp>
 
@@ -52,6 +55,50 @@ class OtherTests : public testing::Test {
         doc->release();
 
         xercesc::XMLPlatformUtils::Terminate();
+      } catch (const std::exception& e) {
+        std::throw_with_nested(std::runtime_error(CALL_INFO()));
+      }
+    }
+
+    std::string createString() {
+      try {
+        std::string result = "";
+
+        xercesc::XMLPlatformUtils::Initialize();
+
+        xercesc::DOMImplementation* impl = xercesc::DOMImplementationRegistry::getDOMImplementation(xercesc::XMLString::transcode("Core"));
+        xercesc::DOMDocument* doc = impl->createDocument(0, xercesc::XMLString::transcode("root"), 0);
+        xercesc::DOMElement* root = doc->getDocumentElement();
+
+        xercesc::DOMElement* rootName = doc->createElement(xercesc::XMLString::transcode("name"));
+        rootName->setAttribute(xercesc::XMLString::transcode("type"), xercesc::XMLString::transcode("string"));
+        xercesc::DOMText* rootNameValue = doc->createTextNode(xercesc::XMLString::transcode("Abc"));
+        rootName->appendChild(rootNameValue);
+        root->appendChild(rootName);
+
+        xercesc::DOMElement* rootId = doc->createElement(xercesc::XMLString::transcode("id"));
+        rootId->setAttribute(xercesc::XMLString::transcode("type"), xercesc::XMLString::transcode("int"));
+        xercesc::DOMText* rootIdValue = doc->createTextNode(xercesc::XMLString::transcode("1"));
+        rootId->appendChild(rootIdValue);
+        root->appendChild(rootId);
+
+        xercesc::DOMLSSerializer* serializer = ((xercesc::DOMImplementationLS*)impl)->createLSSerializer();
+        xercesc::DOMLSOutput* output = ((xercesc::DOMImplementationLS*)impl)->createLSOutput();
+        xercesc::DOMConfiguration* configuration = serializer->getDomConfig();
+        //configuration->setParameter(xercesc::XMLUni::fgDOMWRTFormatPrettyPrint, true);
+        xercesc::XMLFormatTarget* target = new xercesc::MemBufFormatTarget();
+        output->setByteStream(target);
+        serializer->write(doc, output);
+
+        result = std::string(reinterpret_cast<char const*>(((xercesc::MemBufFormatTarget*)target)->getRawBuffer()));
+
+        delete target;
+        output->release();
+        serializer->release();
+        doc->release();
+
+        xercesc::XMLPlatformUtils::Terminate();
+        return result;
       } catch (const std::exception& e) {
         std::throw_with_nested(std::runtime_error(CALL_INFO()));
       }
@@ -118,6 +165,29 @@ TEST_F(OtherTests, test1) {
     std::cout << "BBB: '" << content << "'" << std::endl;
 
     std::cout << std::format("---") << std::endl;
+  } catch (const std::exception& e) {
+    FAIL() << TestUtils::toString(e);
+  }
+}
+
+TEST_F(OtherTests, test2) {
+  try {
+    std::string xml = createString();
+    std::cout << std::format("xml: '{}'", xml) << std::endl;
+
+    xercesc::XMLPlatformUtils::Initialize();
+    xercesc::DOMImplementation* impl = xercesc::DOMImplementationRegistry::getDOMImplementation(xercesc::XMLString::transcode("LS"));
+    xercesc::DOMLSInput* input = ((xercesc::DOMImplementationLS*)impl)->createLSInput();
+    input->setStringData(xercesc::XMLString::transcode(xml.c_str()));
+    xercesc::DOMLSParser* parser = ((xercesc::DOMImplementationLS*)impl)->createLSParser(xercesc::DOMImplementationLS::MODE_SYNCHRONOUS, nullptr);
+    xercesc::DOMDocument* doc = parser->parse(input);
+
+    xercesc::DOMNodeList* list = doc->getElementsByTagName(xercesc::XMLString::transcode("root"));
+    std::cout << std::format("list.length: '{}'", list->getLength()) << std::endl;
+
+    input->release();
+    parser->release();
+    xercesc::XMLPlatformUtils::Terminate();
   } catch (const std::exception& e) {
     FAIL() << TestUtils::toString(e);
   }

@@ -28,5 +28,7 @@ std::pair<int, std::string> TestConfiguration::setExecutableFile(const char* val
     return std::make_pair(EXIT_SUCCESS, "");
   } catch (const std::exception& e) {
     return std::make_pair(EXIT_FAILURE, TestUtils::toString(e));
+  } catch (...) {
+    return std::make_pair(EXIT_FAILURE, CALL_INFO() + ": Unknown error!");
   }
 }

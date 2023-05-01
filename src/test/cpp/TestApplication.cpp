@@ -1,6 +1,8 @@
 #include "TestApplication.hpp"
 #include "TestConfiguration.hpp"
 #include "OtherTests.hpp"
+#include "exqudens/xerces/UtilsTests.hpp"
+#include "exqudens/xerces/ConvertorTests.hpp"
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>

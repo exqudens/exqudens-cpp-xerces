@@ -225,6 +225,83 @@ if(NOT "" STREQUAL "${NOT_FOUND_PACKAGE_NAMES}")
     return()
 endif()
 
+add_library("${PROJECT_NAME}"
+    "src/main/cpp/exqudens/xerces/macros.hpp"
+    "src/main/cpp/exqudens/xerces/Application.hpp"
+    "src/main/cpp/exqudens/xerces/Application.cpp"
+    "src/main/cpp/exqudens/xerces/Service.hpp"
+    "src/main/cpp/exqudens/xerces/Service.cpp"
+    "src/main/cpp/exqudens/xerces/Convertor.hpp"
+    "src/main/cpp/exqudens/xerces/Unit.hpp"
+    "src/main/cpp/exqudens/xerces/XmlToJsonConvertor.hpp"
+    "src/main/cpp/exqudens/xerces/XmlToJsonConvertor.cpp"
+    "src/main/cpp/exqudens/xerces/Utils.hpp"
+    "src/main/cpp/exqudens/xerces/Utils.cpp"
+    "src/main/cpp/exqudens/xerces/ThreadPool.hpp"
+    "src/main/cpp/exqudens/xerces/ThreadPool.cpp"
+)
+generate_export_header("${PROJECT_NAME}"
+    BASE_NAME "EXQUDENS_XERCES"
+    EXPORT_FILE_NAME "generated/src/main/cpp/exqudens/xerces/export.hpp"
+)
+if(NOT "${BUILD_SHARED_LIBS}")
+    set_target_properties("${PROJECT_NAME}" PROPERTIES COMPILE_FLAGS -DEXQUDENS_XERCES_STATIC_DEFINE)
+endif()
+target_include_directories("${PROJECT_NAME}" PUBLIC
+    "$<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/generated/src/main/cpp>"
+    "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src/main/cpp>"
+    "$<INSTALL_INTERFACE:include>"
+)
+target_link_libraries("${PROJECT_NAME}" PUBLIC
+    "XercesC::XercesC"
+    "jsoncpp::jsoncpp"
+)
+set_target_properties("${PROJECT_NAME}" PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY                "${PROJECT_BINARY_DIR}/main/bin"
+    RUNTIME_OUTPUT_DIRECTORY_RELEASE        "${PROJECT_BINARY_DIR}/main/bin"
+    RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO "${PROJECT_BINARY_DIR}/main/bin"
+    RUNTIME_OUTPUT_DIRECTORY_MINSIZEREL     "${PROJECT_BINARY_DIR}/main/bin"
+    RUNTIME_OUTPUT_DIRECTORY_DEBUG          "${PROJECT_BINARY_DIR}/main/bin"
+
+    ARCHIVE_OUTPUT_DIRECTORY                "${PROJECT_BINARY_DIR}/main/lib"
+    ARCHIVE_OUTPUT_DIRECTORY_RELEASE        "${PROJECT_BINARY_DIR}/main/lib"
+    ARCHIVE_OUTPUT_DIRECTORY_RELWITHDEBINFO "${PROJECT_BINARY_DIR}/main/lib"
+    ARCHIVE_OUTPUT_DIRECTORY_MINSIZEREL     "${PROJECT_BINARY_DIR}/main/lib"
+    ARCHIVE_OUTPUT_DIRECTORY_DEBUG          "${PROJECT_BINARY_DIR}/main/lib"
+
+    LIBRARY_OUTPUT_DIRECTORY                "${PROJECT_BINARY_DIR}/main/lib"
+    LIBRARY_OUTPUT_DIRECTORY_RELEASE        "${PROJECT_BINARY_DIR}/main/lib"
+    LIBRARY_OUTPUT_DIRECTORY_RELWITHDEBINFO "${PROJECT_BINARY_DIR}/main/lib"
+    LIBRARY_OUTPUT_DIRECTORY_MINSIZEREL     "${PROJECT_BINARY_DIR}/main/lib"
+    LIBRARY_OUTPUT_DIRECTORY_DEBUG          "${PROJECT_BINARY_DIR}/main/lib"
+)
+
+add_executable("${PROJECT_NAME}-app"
+    "src/main/cpp/main.cpp"
+)
+target_link_libraries("${PROJECT_NAME}-app"
+    "${PROJECT_NAME}"
+)
+set_target_properties("${PROJECT_NAME}-app" PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY                "${PROJECT_BINARY_DIR}/main/bin"
+    RUNTIME_OUTPUT_DIRECTORY_RELEASE        "${PROJECT_BINARY_DIR}/main/bin"
+    RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO "${PROJECT_BINARY_DIR}/main/bin"
+    RUNTIME_OUTPUT_DIRECTORY_MINSIZEREL     "${PROJECT_BINARY_DIR}/main/bin"
+    RUNTIME_OUTPUT_DIRECTORY_DEBUG          "${PROJECT_BINARY_DIR}/main/bin"
+
+    ARCHIVE_OUTPUT_DIRECTORY                "${PROJECT_BINARY_DIR}/main/lib"
+    ARCHIVE_OUTPUT_DIRECTORY_RELEASE        "${PROJECT_BINARY_DIR}/main/lib"
+    ARCHIVE_OUTPUT_DIRECTORY_RELWITHDEBINFO "${PROJECT_BINARY_DIR}/main/lib"
+    ARCHIVE_OUTPUT_DIRECTORY_MINSIZEREL     "${PROJECT_BINARY_DIR}/main/lib"
+    ARCHIVE_OUTPUT_DIRECTORY_DEBUG          "${PROJECT_BINARY_DIR}/main/lib"
+
+    LIBRARY_OUTPUT_DIRECTORY                "${PROJECT_BINARY_DIR}/main/lib"
+    LIBRARY_OUTPUT_DIRECTORY_RELEASE        "${PROJECT_BINARY_DIR}/main/lib"
+    LIBRARY_OUTPUT_DIRECTORY_RELWITHDEBINFO "${PROJECT_BINARY_DIR}/main/lib"
+    LIBRARY_OUTPUT_DIRECTORY_MINSIZEREL     "${PROJECT_BINARY_DIR}/main/lib"
+    LIBRARY_OUTPUT_DIRECTORY_DEBUG          "${PROJECT_BINARY_DIR}/main/lib"
+)
+
 add_library("test-lib" STATIC
     "src/test/cpp/TestApplication.hpp"
     "src/test/cpp/TestApplication.cpp"
@@ -233,6 +310,8 @@ add_library("test-lib" STATIC
     "src/test/cpp/TestMacros.hpp"
     "src/test/cpp/TestUtils.hpp"
     "src/test/cpp/OtherTests.hpp"
+    "src/test/cpp/exqudens/xerces/UtilsTests.hpp"
+    "src/test/cpp/exqudens/xerces/ConvertorTests.hpp"
 )
 target_include_directories("test-lib" PUBLIC
     "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src/test/cpp>"
@@ -243,8 +322,7 @@ target_link_libraries("test-lib" PUBLIC
     "GTest::gtest"
     "GTest::gmock_main"
     "GTest::gtest_main"
-    "XercesC::XercesC"
-    "jsoncpp::jsoncpp"
+    "${PROJECT_NAME}"
 )
 set_target_properties("test-lib" PROPERTIES
     CXX_STANDARD 23
